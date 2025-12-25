@@ -1,0 +1,10 @@
+# 설치된 패키지 (용량이 커서 제외)
+node_modules/
+
+# 데이터 파일 (개인정보 포함)
+data/
+
+# 업로드된 이미지 (기본 이미지 제외)
+public/images/*.jpg
+public/images/*.png
+!public/images/default-product.png

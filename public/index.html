@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4CAF50">
+    <title>필마트 - 동네 식자재 마트</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <a href="/" class="header-logo" onclick="showPage('home')">
+            <span>🏪</span> 필마트
+        </a>
+        <div class="header-right">
+            <button class="header-btn" onclick="showPage('mypage')" title="마이페이지">👤</button>
+        </div>
+    </header>
+
+    <!-- 메인 페이지 -->
+    <main id="page-home" class="page active">
+        <!-- 검색 -->
+        <div class="search-bar">
+            <input type="text" class="search-input" id="searchInput" placeholder="상품명으로 검색">
+            <button class="search-btn" onclick="searchProducts()">검색</button>
+        </div>
+
+        <!-- 배너 -->
+        <div class="banner">
+            <h2>🎄 필마트에 오신 것을 환영합니다!</h2>
+            <p>신선한 식자재를 집에서 편하게 주문하세요</p>
+            <p style="margin-top:8px; font-size:14px;">📞 문의전화: <a href="tel:02-123-4567" style="color:white;">02-123-4567</a></p>
+        </div>
+
+        <!-- 카테고리 -->
+        <div class="categories" id="categoryList">
+            <button class="category-btn active" onclick="filterCategory(null)">
+                <span class="icon">🛒</span> 전체
+            </button>
+        </div>
+
+        <!-- 상품 목록 -->
+        <h2 class="section-title">전체 상품</h2>
+        <div class="products-grid" id="productList">
+            <!-- 상품이 여기에 로드됩니다 -->
+        </div>
+    </main>
+
+    <!-- 상품 상세 페이지 -->
+    <div id="page-product" class="page">
+        <div class="product-detail" id="productDetail">
+            <!-- 상품 상세가 여기에 로드됩니다 -->
+        </div>
+    </div>
+
+    <!-- 장바구니 페이지 -->
+    <div id="page-cart" class="page">
+        <h1 class="page-title">🛒 장바구니</h1>
+        <div class="cart-container" id="cartContainer">
+            <!-- 장바구니 내용이 여기에 로드됩니다 -->
+        </div>
+        <div class="cart-summary" id="cartSummary" style="display:none;">
+            <div class="cart-total">
+                <span class="cart-total-label">총 금액</span>
+                <span class="cart-total-price" id="cartTotalPrice">0원</span>
+            </div>
+            <button class="checkout-btn" onclick="showPage('checkout')">주문하기</button>
+        </div>
+    </div>
+
+    <!-- 주문하기 페이지 -->
+    <div id="page-checkout" class="page">
+        <h1 class="page-title">📝 주문하기</h1>
+        <div class="form-container">
+            <form id="checkoutForm" onsubmit="submitOrder(event)">
+                <!-- 주문 상품 요약 -->
+                <div class="form-group">
+                    <label class="form-label">주문 상품</label>
+                    <div id="checkoutItems" style="background:#f5f5f5; padding:12px; border-radius:8px;"></div>
+                </div>
+
+                <!-- 배송 정보 -->
+                <div class="form-group">
+                    <label class="form-label required">이름</label>
+                    <input type="text" class="form-input" id="orderName" required placeholder="이름을 입력하세요">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">전화번호</label>
+                    <input type="tel" class="form-input" id="orderPhone" required placeholder="010-0000-0000">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">주소</label>
+                    <input type="text" class="form-input" id="orderAddress" required placeholder="도로명 주소를 입력하세요">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">상세주소</label>
+                    <input type="text" class="form-input" id="orderAddressDetail" placeholder="동/호수를 입력하세요">
+                </div>
+
+                <!-- 배송 방법 -->
+                <div class="form-group">
+                    <label class="form-label required">배송 방법</label>
+                    <div class="radio-group">
+                        <label class="radio-option selected">
+                            <input type="radio" name="deliveryType" value="delivery" checked onchange="updateDeliveryOption(this)">
+                            <div class="radio-option-content">
+                                <div class="radio-option-title">🚗 배달 받기</div>
+                                <div class="radio-option-desc">배달비 3,000원 (30,000원 이상 무료배달)</div>
+                            </div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="deliveryType" value="pickup" onchange="updateDeliveryOption(this)">
+                            <div class="radio-option-content">
+                                <div class="radio-option-title">🏪 매장 픽업</div>
+                                <div class="radio-option-desc">무료 (2시간 후 픽업 가능)</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 배송 요청사항 -->
+                <div class="form-group">
+                    <label class="form-label">배송 요청사항</label>
+                    <textarea class="form-textarea" id="orderRequest" placeholder="예: 문 앞에 놓아주세요"></textarea>
+                </div>
+
+                <!-- 결제 방법 -->
+                <div class="form-group">
+                    <label class="form-label required">결제 방법</label>
+                    <div class="radio-group">
+                        <label class="radio-option selected">
+                            <input type="radio" name="paymentMethod" value="cash" checked onchange="updatePaymentOption(this)">
+                            <div class="radio-option-content">
+                                <div class="radio-option-title">💵 만나서 결제 (현금)</div>
+                                <div class="radio-option-desc">배달/픽업 시 현금 결제</div>
+                            </div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="paymentMethod" value="card" onchange="updatePaymentOption(this)">
+                            <div class="radio-option-content">
+                                <div class="radio-option-title">💳 만나서 결제 (카드)</div>
+                                <div class="radio-option-desc">배달/픽업 시 카드 결제</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 결제 금액 -->
+                <div class="form-group" style="background:#e8f5e9; padding:20px; border-radius:12px; margin-top:20px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                        <span>상품 금액</span>
+                        <span id="checkoutSubtotal">0원</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                        <span>배달비</span>
+                        <span id="checkoutDeliveryFee">0원</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:20px; font-weight:bold; padding-top:12px; border-top:1px solid #c8e6c9;">
+                        <span>총 결제금액</span>
+                        <span id="checkoutTotal" style="color:#388e3c;">0원</span>
+                    </div>
+                </div>
+
+                <!-- 최소 주문금액 안내 -->
+                <p id="minOrderWarning" style="color:#f44336; text-align:center; margin:12px 0; display:none;">
+                    ⚠️ 최소 주문금액은 10,000원입니다.
+                </p>
+
+                <button type="submit" class="btn btn-secondary btn-block btn-lg mt-20" id="orderSubmitBtn">
+                    주문하기
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 주문 완료 페이지 -->
+    <div id="page-complete" class="page">
+        <div class="order-complete">
+            <div class="icon">✅</div>
+            <h2>주문이 완료되었습니다!</h2>
+            <p>주문해 주셔서 감사합니다.</p>
+            <div class="order-number" id="completedOrderNumber">-</div>
+            <p style="color:#666; margin-bottom:20px;">
+                주문 확인 문자가 발송될 예정입니다.<br>
+                문의사항은 <a href="tel:02-123-4567">02-123-4567</a>로 연락주세요.
+            </p>
+            <button class="btn btn-primary btn-block" onclick="showPage('orders')">주문 내역 보기</button>
+            <button class="btn btn-outline btn-block mt-20" onclick="showPage('home')">계속 쇼핑하기</button>
+        </div>
+    </div>
+
+    <!-- 주문 내역 페이지 -->
+    <div id="page-orders" class="page">
+        <h1 class="page-title">📋 주문 내역</h1>
+        <div class="order-list" id="orderList">
+            <!-- 비회원 조회 -->
+            <div id="guestOrderLookup" class="form-container">
+                <p style="text-align:center; color:#666; margin-bottom:20px;">
+                    주문하신 전화번호로 주문 내역을 조회할 수 있습니다.
+                </p>
+                <div class="form-group">
+                    <input type="tel" class="form-input" id="lookupPhone" placeholder="전화번호 입력 (예: 010-1234-5678)">
+                </div>
+                <button class="btn btn-primary btn-block" onclick="lookupOrders()">주문 내역 조회</button>
+            </div>
+            <div id="orderItems"></div>
+        </div>
+    </div>
+
+    <!-- 마이페이지 -->
+    <div id="page-mypage" class="page">
+        <h1 class="page-title">👤 마이페이지</h1>
+
+        <!-- 비회원 상태 -->
+        <div id="guestView">
+            <div class="user-info-card">
+                <p style="text-align:center; color:#666;">로그인하고 더 편리하게 이용하세요!</p>
+                <div style="display:flex; gap:12px; margin-top:16px;">
+                    <button class="btn btn-primary" style="flex:1;" onclick="showLoginModal()">로그인</button>
+                    <button class="btn btn-outline" style="flex:1;" onclick="showRegisterModal()">회원가입</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 회원 상태 -->
+        <div id="memberView" style="display:none;">
+            <div class="user-info-card">
+                <div class="user-name" id="userNameDisplay">-</div>
+                <div class="user-phone" id="userPhoneDisplay">-</div>
+            </div>
+        </div>
+
+        <div class="mypage-menu">
+            <a href="#" class="mypage-item" onclick="showPage('orders')">
+                <span class="icon">📋</span>
+                주문 내역
+                <span class="arrow">›</span>
+            </a>
+            <a href="#" class="mypage-item" id="editProfileBtn" style="display:none;" onclick="showEditProfileModal()">
+                <span class="icon">✏️</span>
+                회원정보 수정
+                <span class="arrow">›</span>
+            </a>
+            <a href="#" class="mypage-item" id="logoutBtn" style="display:none;" onclick="logout()">
+                <span class="icon">🚪</span>
+                로그아웃
+                <span class="arrow">›</span>
+            </a>
+        </div>
+
+        <div style="padding:16px; text-align:center; color:#999; font-size:14px;">
+            <p>영업시간: 오전 9시 ~ 오후 9시</p>
+            <p>배달지역: 마트 반경 2km 이내</p>
+            <p style="margin-top:8px;">📞 <a href="tel:02-123-4567">02-123-4567</a></p>
+        </div>
+    </div>
+
+    <!-- 하단 네비게이션 -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active" id="nav-home" onclick="showPage('home')">
+            <span class="icon">🏠</span>
+            홈
+        </a>
+        <a href="#" class="nav-item nav-cart" id="nav-cart" onclick="showPage('cart')">
+            <span class="icon">🛒</span>
+            장바구니
+            <span class="badge" id="cartBadge" style="display:none;">0</span>
+        </a>
+        <a href="#" class="nav-item" id="nav-orders" onclick="showPage('orders')">
+            <span class="icon">📋</span>
+            주문내역
+        </a>
+        <a href="#" class="nav-item" id="nav-mypage" onclick="showPage('mypage')">
+            <span class="icon">👤</span>
+            마이
+        </a>
+    </nav>
+
+    <!-- 로그인 모달 -->
+    <div class="modal-overlay" id="loginModal" style="display:none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">로그인</h3>
+                <button class="modal-close" onclick="closeModal('loginModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="login(event)">
+                    <div class="form-group">
+                        <label class="form-label">전화번호</label>
+                        <input type="tel" class="form-input" id="loginPhone" placeholder="010-0000-0000" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">비밀번호</label>
+                        <input type="password" class="form-input" id="loginPassword" placeholder="비밀번호" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">로그인</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 회원가입 모달 -->
+    <div class="modal-overlay" id="registerModal" style="display:none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">회원가입</h3>
+                <button class="modal-close" onclick="closeModal('registerModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="register(event)">
+                    <div class="form-group">
+                        <label class="form-label required">이름</label>
+                        <input type="text" class="form-input" id="regName" placeholder="이름" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">전화번호</label>
+                        <input type="tel" class="form-input" id="regPhone" placeholder="010-0000-0000" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">비밀번호</label>
+                        <input type="password" class="form-input" id="regPassword" placeholder="비밀번호 (4자리 이상)" required minlength="4">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">주소</label>
+                        <input type="text" class="form-input" id="regAddress" placeholder="기본 배송 주소 (선택)">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">회원가입</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 토스트 메시지 -->
+    <div class="toast" id="toast" style="display:none;"></div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>
